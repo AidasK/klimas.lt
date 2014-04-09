@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en" ng-app="app">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Angular.js</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/custom.css">
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+        <link rel="stylesheet"
+              href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+                <section>
+                    <p>
+                        <br>
+                    </p>
+                    <p>
+                        <br>
+                    </p>
+                    <p>
+                        <img src="images/AngularShieldLogo.png" style="font-size: 36px;
+                        font-style: normal; font-variant: normal; max-width: none;
+                        max-height: none; width: 800px;">
+                        <br>
+                    </p>
+                    <p>
+                        <br>
+                    </p>
+                    <p>
+                        <br>
+                    </p>
+                    <p>
+                        <small>Created by <a href="http://www.klimas.lt/">Aidas Klimas</a></small>
+
+                    </p>
+                </section>
+
+
+                <section>
+                    <h2>About me</h2>
+
+                    <br/>
+                    <p>I code mostly with - JavaScript and PHP</p>
+                    <p>I share stuff at - https://github.com/AidasK</p>
+                    <br/>
+                    <img src="images/uploady.png"/>
+                    <br/>
+                    <img src="images/datadog.png"/>
+                </section>
+
+                <section>
+                    <h2>What is angular?</h2>
+                    <img src="images/google-translate.png" class="fragment roll-in"/>
+                </section>
+
+                <section ng-non-bindable>
+                    <h2>The Zen of Angular</h2>
+
+                    <p>Angular makes HTML Dynamic, you can create any html element,
+                        attribute you want</p>
+
+                    <pre><code data-trim contenteditable>
+&lt;tabset&gt;&lt;tab&gt;&lt;/tab&gt;&lt;/tabset&gt;
+&lt;grid&gt;
+&lt;lightbox src="image.png" /&gt;
+&lt;pokemon name="Pikachu"/&gt;
+&lt;a blink="2000"&gt;
+</code></pre>
+
+                </section>
+
+                <section ng-non-bindable>
+                    <h2>Templates</h2>
+<h3>Handlebars</h3>
+<pre><code data-trim contenteditable>
+&lt;ul&gt;
+  {{#each visitors}}
+    &lt;li&gt;Hello, {{name}}!&lt;/li&gt;
+  {{/each}}
+&lt;/ul&gt;
+</code></pre>
+
+<h3>Angular</h3>
+<pre><code data-trim contenteditable>
+&lt;ul&gt;
+    &lt;li ng-repeat="visitor in visitors"&gt;Hello, {{visitor.name}}!&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+                </section>
+
+                <section ng-non-bindable>
+                    <h2>Basic templates</h2>
+                    <p>HTML string + Data = Merged HTML string</p>
+                    <img src="images/One_Way_Data_Binding.png"/>
+                </section>
+
+
+                <section ng-non-bindable>
+                    <h2>Angular templates</h2>
+                    <img src="images/Two_Way_Data_Binding.png"/>
+                </section>
+
+
+
+                <section>
+                    <h2>In action</h2>
+                    <div>
+                        <br>
+                    </div>
+                    <div>No need to write javascript&nbsp;</div>
+                    <pre ng-non-bindable><code data-trim contenteditable>
+&lt;!doctype html&gt;
+&lt;html ng-app&gt;
+  &lt;head&gt;
+      &lt;script src=&quot;js/angular.js&quot;&gt;&lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+      &lt;label&gt;Name:&lt;/label&gt;
+      &lt;input type=&quot;text&quot; ng-model=&quot;yourName&quot;&gt;
+      &lt;h1&gt;Hello {{yourName}}!&lt;/h1&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+                    </code></pre>
+
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" ng-model="yourName"  class="form-control" >
+                        </div>
+
+                        <br>
+                        <b>Hello {{yourName}}!</b>
+                    </div>
+                </section>
+
+
+
+
+                <section>
+                    <h2>Easy to bind events</h2>
+
+<pre><code data-trim contenteditable ng-non-bindable>
+&lt;div ng-init=&quot;boxes=[]&quot;&gt;
+    &lt;button class=&quot;btn btn-default&quot; ng-click=&quot;boxes.push({
+        id: boxes.length + 1
+    })&quot;&gt;Add box&lt;/button&gt;
+    &lt;div ng-repeat=&quot;box in boxes&quot; class=&quot;box&quot;&gt;{{box.id}}&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+                    <div ng-init="boxes=[]">
+                        <button class="btn btn-default" ng-click="boxes.push({
+                            id: boxes.length + 1
+                        })">Add box</button>
+                        <br/>
+
+                        <div ng-repeat="box in boxes" class="box">{{box.id}}</div>
+                    </div>
+                </section>
+
+
+                <section>
+                    <h2>Directives</h2>
+                    <pre class="fragment roll-in"><code data-trim contenteditable ng-non-bindable>
+&lt;greeter name="Pikachu">&lt;/greeter>
+</code></pre>
+                    <p class="fragment roll-in">Should output:</p>
+                    <p class="fragment roll-in">Hello Pikachu!</p>
+                </section>
+
+
+                <section>
+                    <h2>&lt;greeter> Element</h2>
+                    <pre class="fragment roll-in"><code data-trim contenteditable ng-non-bindable>
+app.directive('greeter', function () {
+    return {
+        restrict: 'E',
+        template: 'Hello {{name}}!',
+        scope: {
+            name: '@'
+        }
+    };
+});
+</code></pre>
+                    <pre class="fragment roll-in"><code data-trim contenteditable ng-non-bindable>
+&lt;greeter name="Angular">&lt;/greeter>
+&lt;greeter name="Kaunas">&lt;/greeter>
+</code></pre>
+                    <p class="fragment">Outputs:</p>
+                    <p class="fragment">
+                        <greeter name="Angular"></greeter>
+                        <greeter name="Kaunas"></greeter>
+                    </p>
+                </section>
+
+
+                <section>
+                    <h2>Directive "restrict"</h2>
+                    <ul>
+                        <li>restrict: "E" - for elements only
+                            <pre><code data-trim>&lt;directive>&lt/directive></code></pre></li>
+
+                        <li>restrict: "A" - for attributes only
+                            <pre><code data-trim>&lt;div directive>&lt/div></code></pre></li>
+
+
+                        <li>"C" - class names</li>
+                        <li>"M" - comments</li>
+                        <li>Or any combined variation restrict: "EACM"</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>draggable Directive</h2>
+                    <p></p>
+                    <pre ><code data-trim contenteditable ng-non-bindable>
+&lt;img src="images/datadog.png" draggable/>
+</code></pre>
+                    <p>Example:</p>
+                    <img src="images/datadog.png" draggable/>
+                </section>
+
+                <section>
+                    <h2>Draggable Directive</h2>
+
+                    <pre><code data-trim contenteditable ng-non-bindable>
+app.directive('draggable', function($document) {
+    return function (scope, element, attr) {
+        var startX = 0, startY = 0, x = 0, y = 0;
+        element.css({
+            position: 'relative', cursor: 'pointer'
+        });
+        element.on('mousedown', function (event) {
+            startX = event.pageX - x;
+            startY = event.pageY - y;
+            $document.on('mousemove', mousemove);
+            $document.on('mouseup', mouseup);
+            event.preventDefault();
+        });
+        function mousemove(event) {
+            y = event.pageY - startY;
+            x = event.pageX - startX;
+            element.css({
+                top: y + 'px',
+                left: x + 'px'
+            });
+        }
+        function mouseup() {
+            $document.unbind('mousemove', mousemove);
+            $document.unbind('mouseup', mouseup);
+        }
+    }
+});
+</code></pre>
+                </section>
+
+                <section>
+                    <h2>Angular Directives</h2>
+                    <ul>
+                        <li>ng-click</li>
+                        <li>ng-hide</li>
+                        <li>ng-if</li>
+                        <li>ng-class</li>
+                        <li>ng-style</li>
+                        <li>ng-switch</li>
+                        <li>ng-repeat</li>
+                        <li>ng-animate</li>
+                        <li>ng-swipe-left</li>
+                        <li>...</li>
+                    </ul>
+                </section>
+
+                <section data-background="#007777">
+                    <h1>Tips</h1>
+                </section>
+
+
+                <section>
+                    <h2>Directives naming</h2>
+                    <ul>
+                        <li>Prefix your directives</li>
+                        <li>Make sure your prefix is unique</li>
+                        <li>Don't use "ng-"</li>
+                        <li>Possible prefixes - "my-", "app-"</li>
+                    </ul>
+                </section>
+
+
+                <section>
+                    <h2>View is not changing!</h2>
+
+<pre><code data-trim contenteditable ng-non-bindable>
+app.directive('awesomeClick', function($document) {
+    return function (scope, element, attr) {
+        scope.awesome = 0;
+        element.bind('click', function () {
+            scope.awesome += 1;
+        });
+    }
+});
+</code></pre>
+
+<pre><code data-trim contenteditable ng-non-bindable>
+&lt;a awesome-click>awesome-click [{{awesome}}]&lt;/a>
+</code></pre>
+<a awesome-click>awesome-click [{{awesome}}]</a>
+
+
+<pre class="fragment roll-in"><code data-trim contenteditable ng-non-bindable>
+app.directive('runApplyClick', function($document) {
+    return function (scope, element, attr) {
+        element.bind('click', function () {
+            scope.$apply();
+        });
+    }
+});
+</code></pre>
+<a class="fragment roll-in" run-apply-click>run-apply-click</a>
+
+                </section>
+
+
+                <section>
+                    <h2>awesome-click fixed</h2>
+
+<pre><code data-trim contenteditable ng-non-bindable>
+app.directive('awesomeClickFixed', function($document) {
+    return function (scope, element, attr) {
+        scope.awesome = 0;
+        element.bind('click', function () {
+            scope.awesome += 1;
+            scope.$apply();
+        });
+    }
+});
+</code></pre>
+
+
+<pre><code data-trim contenteditable ng-non-bindable>
+&lt;a awesome-click-fixed>awesome-click-fixed [{{awesome}}]&lt;/a>
+</code></pre>
+<a awesome-click-fixed>awesome-click-fixed [{{awesome}}]</a>
+                </section>
+
+                <section>
+                    <h2>$scope.$apply()</h2>
+
+                    <img src="images/apply.jpg"/>
+                </section>
+
+
+                <section>
+                    <h2>$digest already in progress</h2>
+
+                    <p class="fragment roll-in">Make sure event is always called sync or async</p>
+
+                    <div class="fragment roll-in">
+                        <p>This is not a solution</p>
+<pre><code data-trim contenteditable>
+    if (!$scope.$$phase) $scope.$apply()
+</code></pre>
+                    </div>
+                    <img class="fragment roll-in" src="images/concepts-runtime.png"/>
+                </section>
+
+
+
+                <section>
+                    <h2>$digest already in progress</h2>
+                    <p>Solution:</p>
+                    <ul>
+                        <li>Open a pull request and fix a library</li>
+                        <li class="fragment roll-in">Use $timeout for async execution</li>
+                        <li class="fragment roll-in">Use scope.$evalAsync for async execution</li>
+                    </ul>
+
+<pre class="fragment roll-in"><code data-trim contenteditable>
+scope.$evalAsync(function () {
+    // Ugly code goes here
+});
+</code></pre>
+                </section>
+
+
+                <section>
+                    <h2>Future of angular</h2>
+                    <p>No more $scope.$apply()!</p>
+                </section>
+
+                <section>
+                    <h2>Logging</h2>
+
+<pre><code data-trim contenteditable>
+app.factory('$log', function($window){
+    return {
+        log: consoleLog('log'),
+        info: consoleLog('info'),
+        warn: consoleLog('warn'),
+        ...
+    };
+    function consoleLog(type) {
+        return function() {
+            var args = [];
+            forEach(arguments, function(arg) {
+                args.push(formatError(arg));
+            });
+            return logFn.apply(console, args);
+        };
+    }
+});
+</code></pre>
+                </section>
+
+
+                <section>
+                    <h2>Ooops, an error occured</h2>
+                    <img src="images/send-error.png"/>
+                </section>
+
+                <section>
+                    <h2>Logging</h2>
+                    <p>Send all errors to the server side.</p>
+<pre><code data-trim contenteditable>
+...
+function consoleLog(type) {
+    return function() {
+        var args = [];
+        forEach(arguments, function(arg) {
+            args.push(formatError(arg));
+        });
+        var url = $window.location && $window.location.href;
+        $http.post('/log', {message: args.join('\n\n'), url: url});
+        return logFn.apply(console, args);
+    };
+}
+...
+</code></pre>
+                </section>
+
+
+
+
+                <section>
+                    <h1>SEO</h1>
+                </section>
+
+                <section>
+                    <h2>What does the google see?</h2>
+<pre><code data-trim contenteditable>
+&lt;html ng-app&gt;
+    &lt;head&gt;
+        &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;/css/min.css&quot;/&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;/js/min.js&quot;&gt;&lt;/script&gt;
+        &lt;title&gt;My Angular site&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div ng-view&gt;&lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+                </section>
+
+                <section>
+                    <h2>How to fix this?</h2>
+
+<pre class="fragment roll-in"><code data-trim contenteditable>
+    &lt;meta name=&quot;fragment&quot; content=&quot;!&quot;/&gt;
+</code></pre>
+<pre class="fragment roll-in"><code data-trim contenteditable>
+    $locationProvider.hashPrefix('!');
+</code></pre>
+
+<p class="fragment roll-in">
+    http://example.com/<b style="color: #1b91ff">#!</b>/article
+</p>
+
+<p class="fragment roll-in">
+    http://example.com/<b style="color: #1b91ff">?_escaped_fragment_=</b>/article
+</p>
+
+                </section>
+
+
+                <section>
+                    <h2>How to fix this for html5 urls?</h2>
+
+
+<pre class="fragment roll-in"><code data-trim contenteditable>
+    $locationProvider.html5Mode(true).hashPrefix('!');
+</code></pre>
+
+<p class="fragment roll-in">
+    http://example.com<b style="color: #1b91ff">/article</b>
+</p>
+
+<p class="fragment roll-in">
+    http://example.com/article<b style="color: #1b91ff">?_escaped_fragment_=</b>
+</p>
+
+                </section>
+
+                <section>
+                    <h2>Example - angular documentation</h2>
+
+                    <small>
+                        Regular page:
+                        <a href="http://docs.angularjs.org/guide/dev_guide.services.$location">
+                            http://docs.angularjs.org/guide/dev_guide.services.$location
+                        </a>
+                    </small>
+
+                    <small>
+                        Indexed page:
+                        <a href="http://docs.angularjs.org/guide/dev_guide.services.$location?_escaped_fragment_=">http://docs.angularjs.org/guide/dev_guide.services.$location?_escaped_fragment_=</a>
+                    </small>
+                </section>
+
+                <section>
+                    <h2>Who is using Angular.js</h2>
+
+                    <br/>
+                    <h3><a href="http://www.uploady.com/">Uploady.com</a></h3>
+                    <h4><a href="http://www.google.com/trends/">Google Trends</a></h4>
+                    <h4><a href="http://plnkr.co/">plnkr.co</a></h4>
+                    <br/>
+                    <br/>
+                    <small>And more <a href="http://builtwith.angularjs.org/">http://builtwith.angularjs.org/</a></small>
+                </section>
+
+                <section data-background="#007777">
+                    <h1>Libraries</h1>
+                </section>
+
+                <section>
+                    <h1>Angular Flow</h1>
+                    <p>JavaScript library providing multiple simultaneous, stable and resumable uploads via the HTML5 File API.</p>
+
+                    <a href="https://github.com/flowjs/ng-flow">
+                        github.com/flowjs/ng-flow
+                    </a>
+                </section>
+
+                <section>
+                    <h1>And more</h1>
+                    <ul>
+                        <li>ui-bootstrap - angular with bootstrap 2/3</li>
+                        <li>angulartics - track your visitors with angular routes</li>
+                        <li>ngprogress-lite - Slim progress bars for Ajax'y applications</li>
+                    </ul>
+                </section>
+
+
+                <section>
+                    <h2>Whats next?</h2>
+                    <p>
+                    </p>
+                    <ul>
+                        <li>
+                            Angular.js with Require.js
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h1>
+                        <span style="font-size: 135.72px;">Thank You!</span>
+                        <br>
+                    </h1>
+                    <h2>Questions?</h2>
+                    <p>Get slides from <a href="http://klimas.lt/slides">klimas.lt/slides</a></p>
+                </section>
+
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+        <script src="lib/js/angular.js"></script>
+
+		<script>
+
+            var app = angular.module('app', []);
+            app.directive('greeter', function () {
+                return {
+                    restrict: 'E',
+                    template: 'Hello {{name}}!',
+                    scope: {
+                        name: '@'
+                    }
+                };
+            });
+            app.directive('img-editable', function ($compile) {
+                return {
+                    restrict: 'E',
+                    scope: {
+                        src: '@'
+                    },
+                    link: function (scope, element, attrs) {
+                        bindImg();
+                        function bindImg() {
+                            element.bind('click', function () {
+                                var $input = $compile('<input ng-model="src"/> {{src}}')(scope);
+                                element.after($input);
+                                element.remove();
+                                bindInput($input);
+                                scope.$apply();
+                            });
+                        }
+                        function bindInput($input) {
+                            $input.bind('keypress', function (event) {
+                                if (event.keyCode != 13) {
+                                    return;
+                                }
+                                $input.replaceWith(element);
+                                element.attr('src', scope.src);
+                                bindImg();
+                                scope.$apply();
+                            });
+                        }
+                    }
+                };
+            });
+            app.directive('draggable', function($document) {
+                return function (scope, element, attr) {
+                    var startX = 0, startY = 0, x = 0, y = 0;
+                    element.css({
+                        position: 'relative',
+                        cursor: 'pointer'
+                    });
+                    element.on('mousedown', function (event) {
+                        // Prevent default dragging of selected content
+                        event.preventDefault();
+                        startX = event.pageX - x;
+                        startY = event.pageY - y;
+                        $document.on('mousemove', mousemove);
+                        $document.on('mouseup', mouseup);
+                    });
+                    function mousemove(event) {
+                        y = event.pageY - startY;
+                        x = event.pageX - startX;
+                        element.css({
+                            top: y + 'px',
+                            left: x + 'px'
+                        });
+                    }
+                    function mouseup() {
+                        $document.unbind('mousemove', mousemove);
+                        $document.unbind('mouseup', mouseup);
+                    }
+                }
+            });
+            app.directive('awesomeClick', function($document) {
+                return function (scope, element, attr) {
+                    scope.awesome = 0;
+                    element.bind('click', function () {
+                        scope.awesome += 1;
+                    });
+                }
+            });
+            app.directive('runApplyClick', function($document) {
+                return function (scope, element, attr) {
+                    element.bind('click', function () {
+                        scope.$apply();
+                    });
+                }
+            });
+            app.directive('awesomeClickFixed', function($document) {
+                return function (scope, element, attr) {
+                    scope.awesome = 0;
+                    element.bind('click', function () {
+                        scope.awesome += 1;
+                        scope.$apply();
+                    });
+                }
+            });
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
