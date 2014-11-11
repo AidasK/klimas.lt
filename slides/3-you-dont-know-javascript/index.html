@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>You don't know JavaScript by Aidas Klimas</title>
+
+  <meta name="author" content="Hakim El Hattab">
+
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="stylesheet" href="css/reveal.min.css">
+  <link rel="stylesheet" href="css/theme/solarized.css" id="theme">
+
+  <!-- For syntax highlighting -->
+  <link rel="stylesheet" href="lib/css/zenburn.css">
+
+  <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+  <script>
+    if (window.location.search.match(/print-pdf/gi)) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = 'css/print/pdf.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+    }
+  </script>
+
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+  <!-- Any section element inside of this container is displayed as a slide -->
+  <div class="slides">
+    <section>
+      <h1>You don't know JavaScript</h1>
+
+      <p>
+        <small>Created by Aidas Klimas</small>
+      </p>
+    </section>
+
+
+    <section>
+      <img src="img/javascript-might-case-a-headache.jpg">
+    </section>
+
+    <section>
+<pre><code data-trim contenteditable class="javascript">
+var foo;
+foo[' '] = 5
+console.log(foo(6))
+if (false) {
+  function foo(undefined) {
+    "use strict"
+    a = 3
+    return a * foo[' '] * undefined
+    var a = b
+  }
+}
+</code></pre>
+    </section>
+
+    <section>
+      <img src="img/understanding-closures-is-like-when-neo-sees-the-matrix-for-the-first-time.jpg"/>
+    </section>
+
+    <section>
+      <img src="img/scopes.png">
+    </section>
+
+    <section>
+        <h2>Closure</h2>
+					<pre><code data-trim contenteditable>
+function foo() {
+  var a = 2;
+  function bar() {
+      console.log( a );
+  }
+  return bar;
+}
+var baz = foo();
+baz(); // 2 -- Whoa, closure was just observed, man.
+          </code></pre>
+    </section>
+
+    <section>
+      <h2>What is the answer?</h2>
+      <pre><code data-trim contenteditable class="javascript">
+a = 2;
+var a;
+console.log(a);
+      </code></pre>
+    </section>
+
+    <section>
+      <pre><code data-trim contenteditable class="javascript">
+console.log(foo);
+var foo;
+function foo() {
+
+}
+var foo;
+      </code></pre>
+    </section>
+
+
+    <section>
+      <img src="img/fail-fast-and-fail-loudly.jpg">
+    </section>
+
+    <section>
+      <h2>"use strict"</h2>
+      <pre><code data-trim contenteditable class="javascript">
+function foo() {
+  "use strict";
+  bar = 6;
+}
+foo();
+      </code></pre>
+      <p>ReferenceError: bar is not defined</p>
+    </section>
+
+    <section>
+      <h2>Functions are objects</h2>
+      <pre><code data-trim contenteditable class="javascript">
+foo.a = 5;
+function foo() {
+  console.log(foo.a);
+}
+      </code></pre>
+    </section>
+
+
+    <section>
+      <img src="img/not-using-semicolons.jpg"/>
+    </section>
+
+    <section>
+      <h2>Use semicolons!</h2>
+
+					<pre><code data-trim contenteditable>
+$(function foo(){
+  alert('a')
+})
+
+(function bar() {
+  alert('b')
+})()
+          </code></pre>
+      <code class="fragment roll-in">TypeError: object is not a function</code>
+    </section>
+
+
+    <section>
+<pre><code data-trim contenteditable class="javascript">
+var foo;
+foo[' '] = 5
+console.log(foo(6)) // --> 90
+if (false) {
+  function foo(undefined) {
+    "use strict"
+    a = 3
+    return a * foo[' '] * undefined
+    var a = b
+  }
+}
+</code></pre>
+    </section>
+
+
+    <section>
+      <h2>Module pattern</h2>
+    </section>
+
+    <section>
+<pre><code data-trim contenteditable class="javascript">
+function coolModule() {
+    var something = "cool";
+    var another = [1, 2, 3];
+    function doSomething() {
+        console.log(something);
+    }
+    function doAnother() {
+        console.log(another.join( " ! " ));
+    }
+    return {
+        doSomething: doSomething,
+        doAnother: doAnother
+    };
+}
+</code></pre>
+    </section>
+
+
+
+    <section>
+      <h2>
+        You Don't Know JS
+      </h2>
+      <a href="https://github.com/getify/You-Dont-Know-JS">
+        https://github.com/getify/You-Dont-Know-JS
+      </a>
+    </section>
+
+
+    <section>
+      <h1>
+        Thank You!
+      </h1>
+
+      <h2>Questions?</h2>
+
+      <p>Get slides from <a href="http://klimas.lt/slides">klimas.lt/slides</a></p>
+    </section>
+
+  </div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+
+    theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+    transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+    // Parallax scrolling
+//    parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+//    parallaxBackgroundSize: '2100px 900px',
+
+    margin: 0,
+    minScale: 0.2,
+    maxScale: 5.0,
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+      {
+        src: 'lib/js/classList.js', condition: function () {
+        return !document.body.classList;
+      }
+      },
+      {
+        src: 'plugin/markdown/marked.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      }
+      },
+      {
+        src: 'plugin/markdown/markdown.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      }
+      },
+      {
+        src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+        hljs.initHighlightingOnLoad();
+      }
+      },
+      {
+        src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+        return !!document.body.classList;
+      }
+      },
+      {
+        src: 'plugin/notes/notes.js', async: true, condition: function () {
+        return !!document.body.classList;
+      }
+      }
+    ]
+  });
+
+</script>
+
+</body>
+</html>
