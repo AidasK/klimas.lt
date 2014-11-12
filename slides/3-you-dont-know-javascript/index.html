@@ -101,6 +101,8 @@ a = 2;
 var a;
 console.log(a);
       </code></pre>
+
+        <code class="fragment roll-in">console.log(a); -> 2</code>
     </section>
 
     <section>
@@ -139,6 +141,10 @@ function foo() {
   console.log(foo.a);
 }
       </code></pre>
+      <pre class="fragment roll-in"><code data-trim contenteditable class="javascript">
+$('#foo');
+$.each( ... );
+      </code></pre>
     </section>
 
 
@@ -161,7 +167,6 @@ $(function foo(){
       <code class="fragment roll-in">TypeError: object is not a function</code>
     </section>
 
-
     <section>
 <pre><code data-trim contenteditable class="javascript">
 var foo;
@@ -178,6 +183,69 @@ if (false) {
 </code></pre>
     </section>
 
+    <section>
+        <img src="img/that-bloody-this.jpg">
+    </section>
+
+    <section>
+<pre><code data-trim contenteditable class="javascript">
+var obj = {
+  a: 2,
+  foo: function () {
+    console.log(this.a);
+  }
+};
+obj.foo();// -> 2
+</code></pre>
+    </section>
+
+
+    <section>
+<pre><code data-trim contenteditable class="javascript">
+var obj = {
+  a: 2,
+  foo: function () {
+    console.log(this.a);
+  }
+};
+var bar = obj.foo; // function reference/alias!
+var a = "oops, global"; // `a` also property on global object
+bar();// --> ?
+</code></pre>
+      <code class="fragment roll-in">bar(); // --> "oops, global"</code>
+      <code class="fragment roll-in">setTimeout(obj.foo, 100);</code>
+    </section>
+
+    <section>
+      <h2>setTimeout(obj.foo, 100)</h2>
+      <h3>Solution nr. 1</h3>
+<pre><code data-trim contenteditable class="javascript">
+setTimeout(function () {
+  obj.foo()
+}, 100);
+</code></pre>
+      <h3>Solution nr. 2</h3>
+<pre><code data-trim contenteditable class="javascript">
+setTimeout(obj.foo.bind(obj), 100);
+</code></pre>
+    </section>
+
+    <section>
+      <h2>bind</h2>
+<pre><code data-trim contenteditable class="javascript">
+function Foo(array) {
+  this.count = 0;
+  $.each(array, function () {
+    this.count++;
+  }.bind(this));
+}
+</code></pre>
+    </section>
+
+
+    <section>
+      <img src="img/prototype.jpg">
+    </section>
 
     <section>
       <h2>Module pattern</h2>
@@ -185,24 +253,46 @@ if (false) {
 
     <section>
 <pre><code data-trim contenteditable class="javascript">
-function coolModule() {
-    var something = "cool";
-    var another = [1, 2, 3];
-    function doSomething() {
-        console.log(something);
-    }
-    function doAnother() {
-        console.log(another.join( " ! " ));
-    }
-    return {
-        doSomething: doSomething,
-        doAnother: doAnother
-    };
+function fooModule() {
+  var something = "cool "; // private variable
+  function doSomething() {
+    console.log(something);
+  }
+  function append(string) {
+    return something += string;
+  }
+  return {
+    doSomething: doSomething,
+    append: append
+  };
 }
+console.log(fooModule().append('Banana'));// -> "cool Banana"
+var a = fooModule().append;
+console.log(a('Apple'), a(' Orange'));// -> "cool Apple", "cool Apple Orange"
 </code></pre>
     </section>
 
+    <section>
+<pre><code data-trim contenteditable class="javascript">
+function composedModule() {
+  var bar = "awesome"; // private variable
+  var foo = fooModule();
+  var append = foo.append;
 
+  foo.append = function(string) {
+    return append(string) + ' ' + bar;
+  };
+
+  foo.upper = function(string) {
+    return foo.append(string).toUpperCase();
+  };
+  return foo;
+}
+var module = composedModule()
+console.log(module.append('Banana'));// -> "cool Banana awesome"
+console.log(module.upper('nana'));// -> "COOL BANANANANA AWESOME"
+</code></pre>
+    </section>
 
     <section>
       <h2>
