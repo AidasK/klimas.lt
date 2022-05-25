@@ -1,0 +1,258 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Database Transactions</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/beige.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+		<style>
+			.grid{
+				display: grid;
+				grid-auto-flow: column;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h3>Practical guide to</h3>
+					<h1>Database Transactions</h1>
+					<p>
+						<small>Created by Aidas Klimas</small>
+					</p>
+				</section>
+				<section data-background-color="rgb(7, 7, 0)">
+					<h2 style="color: darkred">Disclaimer!</h2>
+					<p style="color: white">
+						Please be careful while testing SQL queries.<br>
+						Everything you see here should be executed on LOCAL environment.
+						<br>
+						Please double check if your .env file and SQL client is not connected to production.
+					</p>
+				</section>
+				<section>
+					<h2>Atomic operations</h2>
+					<p>
+						It's a single operation which can be reliably executed in concurrent environment.
+						<br>
+						By default MySql Innodb engine supports these atomic operations:
+					</p>
+					<pre><code data-trim contenteditable class="mysql">
+						INSERT --...;
+						DELETE --...;
+						UPDATE --...;
+					</code></pre>
+				</section>
+				<section>
+					<h2>Multiple Atomic operations are not concurrently safe</h2>
+					<pre><code data-trim contenteditable class="mysql">
+							CREATE TABLE dogs (
+								id INT PRIMARY KEY
+							);
+							INSERT INTO dogs (id) VALUES(1), (2);
+							SELECT count(*) FROM dogs;
+							--> 2
+							SELECT count(*) FROM dogs;
+							--> 0, wait, whaaat?
+					</code></pre>
+				</section>
+				<section>
+					<h3>Transactions - Basics</h3>
+					<div class="grid">
+						<div style="font-size: 80%">
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+								CREATE TABLE dogs (
+									id INT PRIMARY KEY
+								);
+								INSERT INTO dogs (id) VALUES(1), (2);
+								SELECT count(*) FROM dogs;
+								--> 2
+								START TRANSACTION;
+								DELETE FROM dogs;
+								SELECT count(*) FROM dogs;
+								--> 0
+							</code></pre>
+						</div>
+						<div>
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+								--; wait a bit
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								SELECT count(*) FROM dogs;
+								--> ?
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Transactions - Locking</h3>
+					<p>
+						Innodb mysql engine supports row level locking. <br>
+						This means that every row can be executed concurrently without blocking as long as each row modification is contained on the same row or rows.
+					</p>
+				</section>
+				<section>
+					<h3>Transactions - Locking example</h3>
+
+					<div style="font-size: 70%">
+						<pre><code data-trim contenteditable class="mysql">
+									CREATE TABLE cats (
+										id INT PRIMARY KEY,
+										name varchar(200)
+									);
+									INSERT INTO cats (id, name) VALUES (1, 'Murkis');
+						</code></pre>
+					</div>
+
+					<div class="grid" style="font-size: 70%">
+						<div>
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+								START TRANSACTION;
+								UPDATE cats set name = 'Gile' where id = 1;
+								--> 1
+								--
+								SELECT * from cats;
+								--> ?
+							</code></pre>
+						</div>
+						<div>
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+								--
+								--
+								SELECT * from cats;
+								--> ?
+								UPDATE cats set name = 'Ponis' where id = 1;
+								--> blocked
+								SELECT * from cats;
+								--> ?
+							</code></pre>
+						</div>
+					</div>
+				</section>
+
+				<section>
+					<h3>Transactions - No Locking example</h3>
+					<div style="font-size: 70%">
+						<pre><code data-trim contenteditable class="mysql">
+							DELETE FROM cats;
+							INSERT INTO cats (id, name) VALUES (1, 'Murkis'), (2, 'Leopoldas');
+						</code></pre>
+					</div>
+
+					<div class="grid" style="font-size: 70%">
+						<div>
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+								START TRANSACTION;
+								UPDATE cats set name='Murkis2' where id = 1;
+								--> 1
+								--
+								SELECT * from cats;
+								--> ?
+							</code></pre>
+						</div>
+						<div>
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+								--
+								--
+								SELECT * from cats;
+								--> ?
+								UPDATE cats set name='Leopoldas2' where id=2;
+								--> 1
+								SELECT * from cats;
+								--> ?
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h1>Workshop Incoming!</h1>
+					<h2>First, prepare!</h2>
+					<p>Go to <br>
+						<u>https://gitlab.com/ekomlita/workshop/database-transactions</u><br>
+						clone and follow readme
+					</p>
+				</section>
+				<section>
+					<h2>Task #1</h2>
+					<p>We will be creating a bank!</p>
+					<pre><code data-trim contenteditable class="yaml">
+						Table `accounts`:
+						| id | name               | balance  |
+						| 1  | Eisius             | 100      |
+						| 2  | Rapolas            | 100      |
+					</code></pre>
+				</section>
+				<section>
+					<h2>Requirements</h2>
+					<p>Create a route</p>
+					<pre><code data-trim contenteditable class="yaml">
+					> POST /add?amount=10&name=rapolas
+					</code></pre>
+					<p>Which could add or subtract some balance</p>
+					<pre><code data-trim contenteditable class="yaml">
+					| id | name               | balance   |
+					| 2  | rapolas            | 110       |
+					</code></pre>
+					Money can not go negative!
+				</section>
+				<section>
+					<h2>Validation</h2>
+					<p>Run the following command to validate if task is complete</p>
+					<pre><code data-trim contenteditable class="bash">
+						php artisan test
+						php artisan concurrency:test
+					</code></pre>
+				</section>
+				<section>
+					<h1>
+						Thank You!
+					</h1>
+
+					<h2>Questions?</h2>
+
+					<p>Get slides from <a href="https://klimas.lt/slides">klimas.lt/slides</a></p>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+				margin: 0.01,
+
+				// Bounds for smallest/largest possible scale to apply to content
+				minScale: 0.2,
+				maxScale: 3.0
+			});
+		</script>
+	</body>
+</html>
