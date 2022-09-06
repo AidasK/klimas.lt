@@ -1,0 +1,308 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Database Locking</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/beige.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+		<style>
+			.grid{
+				display: grid;
+				grid-auto-flow: column;
+
+			}
+			.grid-fixed{
+				display: grid;
+				grid-auto-flow: column;
+				grid-auto-columns: minmax(0, 1fr);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h3>Practical guide to</h3>
+					<h1>Database Locking</h1>
+					<p>
+						<small>Created by Aidas Klimas</small>
+					</p>
+				</section>
+				<section data-background-color="rgb(7, 7, 0)">
+					<h2 style="color: darkred">Disclaimer!</h2>
+					<p style="color: white">
+						Please be careful while testing SQL queries.<br>
+						Everything you see here should be executed on LOCAL environment.
+						<br>
+						Please double check if your .env file and SQL client is not connected to production.
+					</p>
+				</section>
+				<section>
+					<h2>Agenda</h2>
+					<ol>
+						<li>Locking Types</li>
+						<li>Row Locking & Dirty Reads</li>
+						<li>Gap Locking & Inserts</li>
+						<li>Handling Deadlocks</li>
+						<li>Workshop!</li>
+					</ol>
+				</section>
+				<section>
+					<h2>Locking Types</h2>
+					<pre><code data-trim contenteditable class="mysql">
+						SELECT * FROM dogs FOR UPDATE;
+						-- Entire table is locked
+
+						SELECT * FROM dogs WHERE id = 2 FOR UPDATE;
+						-- Only one row is locked
+
+						SELECT * FROM dogs WHERE id > 2 FOR UPDATE;
+						-- Range is locked + Gap locking
+					</code></pre>
+				</section>
+				<section>
+					<h3>Row locking & Dirty Reads</h3>
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+								CREATE TABLE dogs (
+									id INT PRIMARY KEY, name varchar(255)
+								);
+								INSERT INTO dogs (id, name) VALUES
+									(1, 'Gile'), (2, 'Pukis');
+								--;
+								START TRANSACTION;
+								SELECT * FROM dogs FOR UPDATE;
+								UPDATE dogs set name='Pukis';
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+							</code></pre>
+						</div>
+						<div style="font-size: 80%">
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								SELECT * FROM dogs;
+								--> ?
+
+								START TRANSACTION;
+								SELECT * FROM dogs;
+								--> ?
+
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Gap locking & Inserts</h3>
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+								CREATE TABLE dogs (
+									id INT PRIMARY KEY, name varchar(255)
+								);
+								INSERT INTO dogs (id, name) VALUES
+									(1, 'Gile'), (2, 'Pukis');
+								--;
+								START TRANSACTION;
+								SELECT * FROM dogs WHERE id > 2
+									FOR UPDATE;
+							</code></pre>
+						</div>
+						<div style="font-size: 80%">
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								INSERT INTO dogs (id, name) VALUES
+									(3, 'Apelsinas');
+								--> ?
+
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Unintentional Gap locking</h3>
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+								CREATE TABLE dogs (
+									id INT PRIMARY KEY, name varchar(255)
+								);
+								INSERT INTO dogs (id, name) VALUES
+									(1, 'Gile'), (2, 'Pukis');
+								--;
+								START TRANSACTION;
+								SELECT * FROM dogs WHERE name = 'Pukis'
+									FOR UPDATE;
+							</code></pre>
+						</div>
+						<div style="font-size: 80%">
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								INSERT INTO dogs (id, name) VALUES
+									(3, 'Apelsinas');
+								--> ?
+
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Fixing Gap locking</h3>
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+								DROP TABLE dogs;
+								CREATE TABLE dogs (
+									id INT PRIMARY KEY, name varchar(255),
+									INDEX(name)
+								);
+								INSERT INTO dogs (id, name) VALUES
+									(1, 'Gile'), (2, 'Pukis');
+								--;
+								START TRANSACTION;
+								SELECT * FROM dogs WHERE name = 'Pukis'
+									FOR UPDATE;
+							</code></pre>
+						</div>
+						<div style="font-size: 80%">
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								--;
+								INSERT INTO dogs (id, name) VALUES
+									(3, 'Apelsinas');
+								--> ?
+
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>The Rule of Thumb!</h3>
+					<p>
+						Always make sure that at least one field is using an index then locking.
+					</p>
+				</section>
+				<section>
+					<h3>Deadlocks</h3>
+
+					<div class="grid" style="font-size: 70%">
+						<div>
+							SQL connection session 1
+							<pre><code data-trim contenteditable class="mysql">
+							START TRANSACTION;
+
+							SELECT * FROM dogs WHERE id = 1
+									FOR UPDATE;
+							SELECT * FROM dogs WHERE id = 2
+									FOR UPDATE;
+							--> ?
+							</code></pre>
+						</div>
+						<div>
+							SQL connection session 2
+							<pre><code data-trim contenteditable class="mysql">
+							START TRANSACTION;
+
+							SELECT * FROM dogs WHERE id = 2
+									FOR UPDATE;
+							SELECT * FROM dogs WHERE id = 1
+									FOR UPDATE;
+							--> ?
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h1>Workshop Incoming!</h1>
+					<h2>First, prepare!</h2>
+					<p>Go to <br>
+						<u>https://gitlab.com/ekomlita/workshop/database-transactions/-/tree/day-2-locks</u><br>
+						clone and follow readme
+					</p>
+				</section>
+				<section>
+					<h1>
+						Thank You!
+					</h1>
+
+					<h2>Questions?</h2>
+
+					<p>Get slides from <a href="https://klimas.lt/slides">klimas.lt/slides</a></p>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+				margin: 0.01,
+
+				// Bounds for smallest/largest possible scale to apply to content
+				minScale: 0.2,
+				maxScale: 3.0
+			});
+		</script>
+	</body>
+</html>
