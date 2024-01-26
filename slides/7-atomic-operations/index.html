@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Atomic Operations</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/beige.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+		<style>
+			.grid{
+				display: grid;
+				grid-auto-flow: column;
+
+			}
+			.grid-fixed{
+				display: grid;
+				grid-auto-flow: column;
+				grid-auto-columns: minmax(0, 1fr);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h3>Practical guide to</h3>
+					<h1>Atomic Operations</h1>
+					<p>
+						<small>Created by Aidas Klimas</small>
+					</p>
+				</section>
+				<section>
+					<h2>Agenda</h2>
+					<ol>
+						<li>What is an atomic operation</li>
+						<li>File system atomic operations</li>
+						<li>Cache atomic operations</li>
+						<li>Database atomic operations</li>
+						<li>Atomic operations vs Locks</li>
+						<li>Workshop!</li>
+					</ol>
+				</section>
+				<section>
+					<h2>What is an atomic operation?</h2>
+					<p>Any indivisible operation operating systems can do atomically, making them useful as building blocks for thread-safe and multi-process-safe programs without mutexes or read/write locks</p>
+				</section>
+				<section>
+					<h3>File system atomic operations</h3>
+					<div class="grid-fixed">
+						<div>
+							<pre><code data-trim contenteditable class="bash">
+							mv file-path file-path-2 # move file once
+
+							mkdir folder-path # create file once
+							</code></pre>
+						</div>
+					</div>
+
+
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							Terminal connection session 1
+							<pre><code data-trim contenteditable class="bash">
+								mv file-path file-path-2 # FAIL
+							</code></pre>
+						</div>
+						<div style="font-size: 80%">
+							Terminal connection session 2
+							<pre><code data-trim contenteditable class="bash">
+								mv file-path file-path-2 # SUCCESS
+							</code></pre>
+						</div>
+					</div>
+
+					<p style="font-size: 50%">
+						Full list
+						<a href="https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html">
+							https://rcrowley.org/2010/01/06/things-unix-can-do-atomically.html
+						</a>
+					</p>
+				</section>
+				<section>
+					<h3>Database atomic operations</h3>
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							<pre><code data-trim contenteditable class="mysql">
+								CREATE TABLE dogs (
+									id INT PRIMARY KEY, name varchar(255)
+								);
+
+								INSERT INTO dogs (id, name) VALUES
+									(1, 'Gile'), (2, 'Pukis'); -- 2 rows affected
+								INSERT INTO dogs (id, name) VALUES
+									(1, 'Gile'), (2, 'Pukis'); -- 0 rows affected
+
+								update dogs set name = 'labas' where id = 1; -- 1 rows affected
+								update dogs set name = 'labas' where id = 1; -- 0 rows affected
+
+								delete from dogs where id = 1; -- 1 rows affected
+								delete from dogs where id = 1; -- 0 rows affected
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Cache atomic operations</h3>
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							<pre><code data-trim contenteditable class="mysql">
+								Cache::add('cache-key', 'value'); // true
+								Cache::add('cache-key', 'value 2'); // false
+
+								Cache::put('cache-key', 'value') // always true, not very useful
+
+								Cache::forget('cache-key');
+							</code></pre>
+						</div>
+					</div>
+
+					<h4>Atomic increment</h4>
+					<div class="grid-fixed">
+						<div style="font-size: 80%">
+							<pre><code data-trim contenteditable class="mysql">
+								Cache::increment('cache-key');
+							</code></pre>
+							VS NON ATOMIC
+							<pre><code data-trim contenteditable class="mysql">
+								$value = Cache::get('cache-key');
+								Cache::put('cache-key', $value + 1)
+							</code></pre>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Atomic operations vs Locks</h3>
+					<ul>
+						<li>Atomic operations are fast. Can be made with a single network request</li>
+						<li>No deadlocks</li>
+						<li>Easy to use</li>
+					</ul>
+				</section>
+				<section>
+					<h1>Workshop Incoming!</h1>
+					<h2>First, prepare!</h2>
+					<p>Go to <br>
+						<u>https://gitlab.com/ekomlita/workshop/atomic-operations-workshop</u><br>
+						clone and follow readme
+					</p>
+				</section>
+				<section>
+					<h1>
+						Thank You!
+					</h1>
+
+					<h2>Questions?</h2>
+
+					<p>Get slides from <a href="https://klimas.lt/slides">klimas.lt/slides</a></p>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+				margin: 0.01,
+
+				// Bounds for smallest/largest possible scale to apply to content
+				minScale: 0.2,
+				maxScale: 3.0
+			});
+		</script>
+	</body>
+</html>
