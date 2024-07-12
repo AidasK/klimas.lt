@@ -1,0 +1,309 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>Atomic Operations</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/beige.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	<style>
+		.grid{
+			display: grid;
+			grid-auto-flow: column;
+
+		}
+		.grid-fixed{
+			display: grid;
+			grid-auto-flow: column;
+			grid-auto-columns: minmax(0, 1fr);
+		}
+	</style>
+</head>
+<body>
+<div class="reveal">
+	<div class="slides">
+		<section>
+			<h1>Promises</h1>
+			<img src="promise.gif" alt="">
+			<p>
+				<small>Created by Haroldas Zapalskis & Aidas Klimas</small>
+			</p>
+		</section>
+		<section>
+			<h2>Agenda</h2>
+			<ol>
+				<li>Theory by Aidas</li>
+				<li>Workshop by Haroldas</li>
+			</ol>
+		</section>
+		<section>
+			<h2>Why do we need promises?</h2>
+			<pre><code data-trim contenteditable class="js" style="font-size: 60%">
+fetchResource(url, function (result) {
+	fetchResource(newUrl, function (result) {
+		fetchResource(anotherUrl, function (result) {
+			...
+		}, failureCallback);
+	}, failureCallback);
+}, failureCallback);
+			</code></pre>
+			<pre><code data-trim contenteditable class="js" style="font-size: 60%">
+try {
+	await fetchResource(url);
+	await fetchResource(newUrl);
+	await fetchResource(anotherUrl);
+} catch (e) {
+	failureCallback(e);
+}
+			</code></pre>
+		</section>
+		<section>
+			<h2>Two ways of creating a promise</h2>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				new Promise((resolve, reject) => resolve('Hello'))
+			</code></pre>
+			<p>Is same as:</p>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				async () => 'Hello'
+			</code></pre>
+			<p>Is same as:</p>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				async function () { return 'Hello'; }
+			</code></pre>
+			<p>Second and third options can not be used in all cases as sometimes we need to handle events or callbacks</p>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				new Promise(
+					(resolve, reject) => setTimeout(() => resolve('Hello'), 1000)
+				)
+			</code></pre>
+		</section>
+		<section>
+			<h2>States of a Promise</h2>
+			<ul>
+				<li>Pending: Initial state, neither fulfilled nor rejected.</li>
+				<li>Resolved: Operation completed successfully.</li>
+				<li>Rejected: Operation failed.</li>
+			</ul>
+		</section>
+		<section>
+			<h2>Using .then(), .catch() and .finally()</h2>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+promise
+	.then(result => {
+		console.log(result); // Operation succeeded
+	})
+	.catch(error => {
+		console.error(error); // Operation failed
+	});
+	.finally(result => {
+		console.error(result); // always executed
+	});
+			</code></pre>
+		</section>
+		<section>
+			<h2>Chaining Promises</h2>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				new Promise((resolve) => resolve('Labas'))
+				  .then(result => result + ' ')
+				  .then(result => result + 'Orbio')
+				  .then(result => result + '!')
+				  .then(result => console.log(result))
+				  .catch(error => console.error(error));
+			</code></pre>
+
+			<div class="fragment roll-in">
+				<p>Console Output</p>
+				<pre><code class="js">
+Labas Orbio!
+				</code></pre>
+			</div>
+		</section>
+		<section>
+			<h2>Chaining Promises In Practice</h2>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				fetch('https://api.ipify.org?format=json')
+				  .then(result => result.json())  // Operation succeeded
+				  .then(result => {
+						console.log(result); // Operation succeeded
+				  })
+				  .catch(error => {
+						console.error(error); // Operation failed
+				  });
+			</code></pre>
+		</section>
+		<section>
+			<h4>await - Chaining Promises In A More Readable Syntax</h4>
+			<div class="grid-fixed">
+				<div style="font-size: 90%">
+					<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+						try {
+							let response = await fetch('https://api.ipify.org?format=json')
+							let json = await result.json();
+							console.log(json);
+						} catch (error) {
+							console.error(error);
+						}
+					</code></pre>
+
+					<p>Same as</p>
+
+					<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+						fetch('https://api.ipify.org?format=json')
+						  .then(result => result.json())  // Operation succeeded
+						  .then(result => {
+								console.log(result); // Operation succeeded
+						  })
+						  .catch(error => {
+								console.error(error); // Operation failed
+						  });
+					</code></pre>
+				</div>
+			</div>
+		</section>
+		<section>
+			<h2>Ways Of Rejecting Promises</h2>
+
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				new Promise((resolve) => resolve('Labas'))
+
+				  .then(result => throw 'a')
+				  .then(result => new Promise((resolve, reject) => reject('a'))
+
+				  .catch(error => console.error(error));
+			</code></pre>
+		</section>
+		<section>
+			<h3>Practice round #1</h3>
+			<p>Both are the same, just in different syntax</p>
+			<div class="grid-fixed">
+				<div style="font-size: 90%">
+					<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+						new Promise(
+							(resolve, reject) => reject('some error')
+						)
+							.then(result => {
+								console.log('success:', result);
+							})
+							.catch(error => {
+								console.error('error:', error);
+							})
+					</code></pre>
+				</div>
+				<div style="font-size: 90%">
+					<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+						(async () => {throw 'some error'})()
+							.then(result => {
+								console.log('success:', result);
+							})
+							.catch(error => {
+								console.error('error:', error);
+							})
+					</code></pre>
+				</div>
+			</div>
+
+			<p>Log output?</p>
+			<div class="fragment roll-in">
+				<pre><code class="js" style="color: red">
+error: some error
+				</code></pre>
+			</div>
+		</section>
+		<section>
+			<h3>Practice round #2</h3>
+			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
+				new Promise((resolve, reject) => reject('some error'))
+				  .catch(error => {
+						console.error('error:', error);
+				  })
+				  .then(result => {
+						console.log('success:', result);
+				  });
+			</code></pre>
+			<p>Log output?</p>
+			<div class="fragment roll-in">
+				<pre class="hljs">
+<span style="color: red">error: some error</span>
+<span style="color: green">success: undefined</span>
+				</pre>
+			</div>
+		</section>
+		<section>
+			<h3>Practice round #2 Fixing</h3>
+
+			<div class="grid-fixed">
+				<div style="font-size: 90%">
+					Possible fix #1: Make sure catch is always at the end
+					<pre><code data-trim contenteditable class="js" style="font-size: 60%">
+						new Promise((resolve, reject) => reject('some error'))
+						  .then(result => {
+								console.log('success:', result);
+						  })
+						  .catch(error => {
+								console.error('error:', error);
+						  })
+					</code></pre>
+				</div>
+				<div style="font-size: 90%">
+					Possible fix #2: Make sure catch is always throwing the same result
+					<pre><code data-trim contenteditable class="js" style="font-size: 60%">
+						new Promise((resolve, reject) => reject('some error'))
+						  .catch(error => {
+								console.error('error:', error);
+								throw error;
+						  })
+						  .then(result => {
+								console.log('success:', result);
+						  })
+					</code></pre>
+				</div>
+			</div>
+		</section>
+
+		<section>
+			<h1>Workshop Incoming!</h1>
+			<p>Go to <br>
+				<u>https://gitlab.com/ekomlita/workshop/atomic-operations-workshop</u><br>
+				clone and follow readme
+			</p>
+		</section>
+		<section>
+			<h1>
+				Thank You!
+			</h1>
+
+			<h2>Questions?</h2>
+
+			<p>Get slides from <a href="https://klimas.lt/slides">klimas.lt/slides</a></p>
+		</section>
+	</div>
+</div>
+
+<script src="dist/reveal.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+<script>
+	// More info about initialization & config:
+	// - https://revealjs.com/initialization/
+	// - https://revealjs.com/config/
+	Reveal.initialize({
+		hash: true,
+
+		// Learn about plugins: https://revealjs.com/plugins/
+		plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+		margin: 0.01,
+
+		// Bounds for smallest/largest possible scale to apply to content
+		minScale: 0.2,
+		maxScale: 3.0
+	});
+</script>
+</body>
+</html>
