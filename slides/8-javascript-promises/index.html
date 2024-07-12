@@ -64,7 +64,7 @@ try {
 			</code></pre>
 		</section>
 		<section>
-			<h2>Two ways of creating a promise</h2>
+			<h2>Ways of creating a promise</h2>
 			<pre><code data-trim contenteditable class="js" style="font-size: 80%">
 				new Promise((resolve, reject) => resolve('Hello'))
 			</code></pre>
@@ -100,7 +100,7 @@ promise
 	})
 	.catch(error => {
 		console.error(error); // Operation failed
-	});
+	})
 	.finally(result => {
 		console.error(result); // always executed
 	});
@@ -144,7 +144,7 @@ Labas Orbio!
 					<pre><code data-trim contenteditable class="js" style="font-size: 80%">
 						try {
 							let response = await fetch('https://api.ipify.org?format=json')
-							let json = await result.json();
+							let json = await response.json();
 							console.log(json);
 						} catch (error) {
 							console.error(error);
@@ -173,6 +173,7 @@ Labas Orbio!
 				new Promise((resolve) => resolve('Labas'))
 
 				  .then(result => throw 'a')
+				  // same as
 				  .then(result => new Promise((resolve, reject) => reject('a'))
 
 				  .catch(error => console.error(error));
@@ -180,24 +181,12 @@ Labas Orbio!
 		</section>
 		<section>
 			<h3>Practice round #1</h3>
-			<p>Both are the same, just in different syntax</p>
 			<div class="grid-fixed">
 				<div style="font-size: 90%">
 					<pre><code data-trim contenteditable class="js" style="font-size: 80%">
 						new Promise(
 							(resolve, reject) => reject('some error')
 						)
-							.then(result => {
-								console.log('success:', result);
-							})
-							.catch(error => {
-								console.error('error:', error);
-							})
-					</code></pre>
-				</div>
-				<div style="font-size: 90%">
-					<pre><code data-trim contenteditable class="js" style="font-size: 80%">
-						(async () => {throw 'some error'})()
 							.then(result => {
 								console.log('success:', result);
 							})
@@ -269,8 +258,7 @@ error: some error
 		<section>
 			<h1>Workshop Incoming!</h1>
 			<p>Go to <br>
-				<u>https://gitlab.com/ekomlita/workshop/atomic-operations-workshop</u><br>
-				clone and follow readme
+				some fiddle url
 			</p>
 		</section>
 		<section>
