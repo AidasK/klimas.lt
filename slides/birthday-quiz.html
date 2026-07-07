@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE TRIAL OF SAINT MARTYNAS — Birthday Quiz</title>
+<style>
+  :root {
+    --gold: #c9a227;
+    --gold-bright: #ffd75e;
+    --blood: #8a0f0f;
+    --blood-bright: #d42121;
+    --parchment: #e8dcc0;
+    --dark: #0d0b08;
+    --panel: #1a1510;
+    --green: #3fae5a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(ellipse at 50% 20%, #241c10 0%, var(--dark) 65%);
+    color: var(--parchment);
+    font-family: Georgia, 'Times New Roman', serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ---------- floating servo skulls ---------- */
+  .servo-skull {
+    position: fixed;
+    font-size: 2rem;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+    animation: drift linear infinite;
+    filter: sepia(1) hue-rotate(-20deg) saturate(2);
+  }
+  .servo-skull::after {
+    content: "🕯️";
+    font-size: 0.9rem;
+    position: absolute;
+    top: -0.7rem;
+    left: 0.55rem;
+    animation: flicker 0.6s infinite alternate;
+  }
+  @keyframes drift {
+    0%   { transform: translateX(-8vw) translateY(0) rotate(-6deg); }
+    50%  { transform: translateX(50vw) translateY(-4vh) rotate(6deg); }
+    100% { transform: translateX(108vw) translateY(2vh) rotate(-6deg); }
+  }
+  @keyframes flicker { from { opacity: 1; } to { opacity: 0.4; } }
+
+  /* ---------- layout ---------- */
+  .shell {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.2rem 4rem;
+    text-align: center;
+  }
+  h1 {
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    letter-spacing: 0.12em;
+    color: var(--gold-bright);
+    text-transform: uppercase;
+    text-shadow: 0 0 18px rgba(201,162,39,0.55), 0 2px 0 #000;
+    margin-bottom: 0.4rem;
+  }
+  .subtitle {
+    color: var(--gold);
+    font-style: italic;
+    letter-spacing: 0.06em;
+    margin-bottom: 1.6rem;
+  }
+  .aquila { font-size: 2.2rem; margin: 0.4rem 0 1rem; letter-spacing: 0.5rem; }
+
+  .panel {
+    background: linear-gradient(180deg, var(--panel), #12100b);
+    border: 2px solid var(--gold);
+    border-radius: 6px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 40px rgba(201,162,39,0.06);
+    padding: 2rem 1.6rem;
+    position: relative;
+  }
+  .panel::before, .panel::after {
+    content: "💀";
+    position: absolute;
+    top: -0.9rem;
+    font-size: 1.3rem;
+    background: var(--dark);
+    padding: 0 0.3rem;
+    filter: sepia(1) hue-rotate(-15deg);
+  }
+  .panel::before { left: 1rem; }
+  .panel::after { right: 1rem; }
+
+  /* ---------- purity seals (progress) ---------- */
+  .seals {
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 1.2rem 0 1.6rem;
+    flex-wrap: wrap;
+  }
+  .seal {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #55482a;
+    background: #241f14;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    color: #6b5c33;
+    transition: all 0.4s;
+  }
+  .seal.done {
+    border-color: var(--gold-bright);
+    background: radial-gradient(circle, #6b5417, #3a2e0d);
+    color: var(--gold-bright);
+    box-shadow: 0 0 10px rgba(255,215,94,0.6);
+    animation: sealPop 0.45s;
+  }
+  @keyframes sealPop {
+    0% { transform: scale(0.3) rotate(-30deg); }
+    60% { transform: scale(1.4) rotate(10deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  /* ---------- questions ---------- */
+  .qnum {
+    color: var(--blood-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.8rem;
+    margin-bottom: 0.7rem;
+  }
+  .qtext {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    color: var(--parchment);
+  }
+  .answers { display: grid; gap: 0.7rem; text-align: left; }
+  .answer {
+    background: #201a12;
+    border: 1px solid #5a4a26;
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--parchment);
+    cursor: pointer;
+    transition: transform 0.12s, border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .answer:hover:not(:disabled) {
+    border-color: var(--gold-bright);
+    background: #2b2315;
+    transform: translateX(6px);
+  }
+  .answer:disabled { cursor: default; }
+  .answer.correct {
+    border-color: var(--green);
+    background: rgba(63,174,90,0.15);
+    box-shadow: 0 0 12px rgba(63,174,90,0.4);
+  }
+  .answer.wrong {
+    border-color: var(--blood-bright);
+    background: rgba(212,33,33,0.15);
+    animation: wrongShake 0.4s;
+  }
+  @keyframes wrongShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  .feedback {
+    min-height: 2.2rem;
+    margin-top: 1.2rem;
+    font-style: italic;
+    color: var(--gold);
+    font-size: 0.95rem;
+  }
+  .next-btn, .big-btn {
+    margin-top: 1.1rem;
+    background: linear-gradient(180deg, #6b5417, #3a2e0d);
+    border: 2px solid var(--gold);
+    color: var(--gold-bright);
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.75rem 2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .next-btn:hover, .big-btn:hover {
+    box-shadow: 0 0 18px rgba(255,215,94,0.5);
+    transform: scale(1.04);
+  }
+  .hidden { display: none !important; }
+
+  /* ---------- HERESY stamp ---------- */
+  #heresy-stamp {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%) rotate(-12deg) scale(0);
+    font-size: clamp(3rem, 12vw, 6rem);
+    font-weight: bold;
+    color: var(--blood-bright);
+    border: 6px solid var(--blood-bright);
+    padding: 0.5rem 2rem;
+    border-radius: 8px;
+    letter-spacing: 0.15em;
+    text-shadow: 0 0 25px rgba(212,33,33,0.9);
+    box-shadow: 0 0 40px rgba(212,33,33,0.5), inset 0 0 30px rgba(212,33,33,0.3);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(13,11,8,0.85);
+  }
+  #heresy-stamp.show { animation: stampIn 1.1s ease-out; }
+  @keyframes stampIn {
+    0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-12deg) scale(3); }
+    18%  { opacity: 1; transform: translate(-50%,-50%) rotate(-12deg) scale(1); }
+    22%  { transform: translate(-52%,-49%) rotate(-13deg) scale(1.03); }
+    26%  { transform: translate(-49%,-51%) rotate(-11deg) scale(1); }
+    75%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%,-50%) rotate(-12deg) scale(1); }
+  }
+  body.shake { animation: bodyShake 0.5s; }
+  @keyframes bodyShake {
+    0%,100% { transform: translate(0,0); }
+    20% { transform: translate(-6px,3px); }
+    40% { transform: translate(6px,-3px); }
+    60% { transform: translate(-4px,-2px); }
+    80% { transform: translate(4px,2px); }
+  }
+
+  /* ---------- EMPEROR APPROVES flash ---------- */
+  #emperor-flash {
+    position: fixed;
+    top: 40%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    color: var(--gold-bright);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    text-shadow: 0 0 25px rgba(255,215,94,1);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+  }
+  #emperor-flash.show { animation: emperorIn 1.2s ease-out; }
+  @keyframes emperorIn {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(0.6); }
+    25% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
+    40% { transform: translate(-50%,-50%) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%,-60%) scale(1); }
+  }
+
+  /* ---------- flying bolter round ---------- */
+  .bolt {
+    position: fixed;
+    width: 26px; height: 8px;
+    background: linear-gradient(90deg, transparent, #ffb347, #fff3c4);
+    border-radius: 4px;
+    z-index: 90;
+    pointer-events: none;
+    box-shadow: 0 0 12px #ffb347;
+    animation: boltFly 0.45s linear forwards;
+  }
+  @keyframes boltFly {
+    from { transform: translateX(-10vw); opacity: 1; }
+    to   { transform: translateX(115vw); opacity: 1; }
+  }
+
+  /* ---------- skull rain / confetti ---------- */
+  .fall {
+    position: fixed;
+    top: -6vh;
+    font-size: 1.6rem;
+    z-index: 95;
+    pointer-events: none;
+    animation: fallDown linear forwards;
+  }
+  @keyframes fallDown {
+    from { transform: translateY(0) rotate(0deg); opacity: 1; }
+    to   { transform: translateY(115vh) rotate(720deg); opacity: 0.7; }
+  }
+
+  /* ---------- gift vault ---------- */
+  #gift-section .vault {
+    font-size: 4.5rem;
+    margin: 1rem 0;
+    animation: vaultGlow 1.6s infinite alternate;
+  }
+  @keyframes vaultGlow {
+    from { filter: drop-shadow(0 0 6px var(--gold)); transform: scale(1); }
+    to   { filter: drop-shadow(0 0 28px var(--gold-bright)); transform: scale(1.08); }
+  }
+  .gift-link {
+    display: inline-block;
+    margin-top: 1.4rem;
+    background: linear-gradient(180deg, var(--blood-bright), var(--blood));
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 1rem 2.4rem;
+    border-radius: 6px;
+    border: 2px solid var(--gold-bright);
+    box-shadow: 0 0 25px rgba(212,33,33,0.6);
+    animation: giftPulse 1.2s infinite alternate;
+  }
+  @keyframes giftPulse {
+    from { box-shadow: 0 0 15px rgba(212,33,33,0.5); transform: scale(1); }
+    to   { box-shadow: 0 0 35px rgba(255,215,94,0.8); transform: scale(1.05); }
+  }
+  .rank {
+    margin-top: 1.2rem;
+    color: var(--gold);
+    font-size: 0.95rem;
+    font-style: italic;
+  }
+  .lore {
+    color: #9c8b5e;
+    font-size: 0.85rem;
+    margin-top: 2rem;
+    font-style: italic;
+  }
+  .small-quote {
+    color: #9c8b5e;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-top: 1.2rem;
+  }
+
+  /* ---------- penance overlay ---------- */
+  #penance-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8,6,4,0.92);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: penanceFade 0.4s;
+  }
+  @keyframes penanceFade { from { opacity: 0; } to { opacity: 1; } }
+  .penance-box {
+    background: linear-gradient(180deg, #262016, #14100a);
+    border: 2px solid var(--blood-bright);
+    border-radius: 6px;
+    max-width: 520px;
+    width: 100%;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(212,33,33,0.4);
+  }
+  .penance-title {
+    color: var(--blood-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
+  .penance-sub {
+    color: #9c8b5e;
+    font-style: italic;
+    font-size: 0.85rem;
+    margin-bottom: 1.4rem;
+  }
+  .penance-task {
+    color: var(--parchment);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+  }
+  .stamp-form {
+    background: var(--parchment);
+    color: #33291a;
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    text-align: left;
+    padding: 0.8rem;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+    min-height: 5.2rem;
+    position: relative;
+  }
+  .stamp-mark {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.4rem;
+    color: var(--blood);
+    border: 2px solid var(--blood);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.8rem;
+    transform: rotate(-8deg);
+    font-weight: bold;
+    animation: sealPop 0.3s;
+  }
+  .penance-btn {
+    background: linear-gradient(180deg, #5c1414, #3a0d0d);
+    border: 2px solid var(--blood-bright);
+    color: var(--parchment);
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .penance-btn:active { transform: scale(0.95); }
+  .penance-progress {
+    color: var(--gold);
+    margin-top: 0.9rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+  }
+  .litany-input {
+    width: 100%;
+    background: #0f0c08;
+    border: 1px solid #5a4a26;
+    border-radius: 4px;
+    color: var(--parchment);
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 0.7rem;
+    margin-bottom: 0.4rem;
+  }
+  .litany-input:focus { outline: none; border-color: var(--gold-bright); }
+  .litany-target {
+    background: #0f0c08;
+    border: 1px dashed #5a4a26;
+    border-radius: 4px;
+    padding: 0.6rem;
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+  }
+  .skull-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.3rem;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+  .skull-count-input {
+    width: 5rem;
+    background: #0f0c08;
+    border: 1px solid #5a4a26;
+    border-radius: 4px;
+    color: var(--parchment);
+    font-family: inherit;
+    font-size: 1.1rem;
+    text-align: center;
+    padding: 0.5rem;
+    margin-right: 0.6rem;
+  }
+  .penance-error {
+    color: var(--blood-bright);
+    font-size: 0.85rem;
+    min-height: 1.2rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="servo-skull" style="top: 12%; animation-duration: 26s;">💀</div>
+<div class="servo-skull" style="top: 55%; animation-duration: 38s; animation-delay: -14s;">💀</div>
+<div class="servo-skull" style="top: 80%; animation-duration: 31s; animation-delay: -7s;">💀</div>
+
+<div id="heresy-stamp">HERESY!</div>
+<div id="emperor-flash"></div>
+
+<div id="penance-overlay" class="hidden">
+  <div class="penance-box">
+    <div class="penance-title">⛓️ Penance Assigned ⛓️</div>
+    <div class="penance-sub">The Administratum thanks you for your compliance. The Administratum always thanks you.</div>
+    <div id="penance-body"></div>
+    <div class="penance-error" id="penance-error"></div>
+  </div>
+</div>
+
+<div class="shell">
+  <h1>The Trial of Saint Martynas</h1>
+  <div class="subtitle">Su gimtadieniu, broli! ✠ An Inquisitorial Purity Examination</div>
+  <div class="aquila">🦅💀🦅</div>
+
+  <div class="seals" id="seals"></div>
+
+  <!-- INTRO -->
+  <div class="panel" id="intro-section">
+    <p class="qtext">
+      Attention, citizen <strong>Martynas "JcDent" Klimas</strong> of Barrel Drill!<br><br>
+      The Ordo Gimtadienis has reviewed your record: suspicious knowledge of miniature
+      wargames, seditious opinions about Games Workshop pricing, and an unhealthy
+      obsession with "My Dudes."<br><br>
+      You will now face <strong>10 questions drawn from your own writings</strong>.
+      Answer them all correctly and the Inquisition will release... <em>the birthday gift</em>.
+      Fail, and the HERESY stamp awaits — followed by <strong>mandatory Administratum penance duty</strong>.
+      Paperwork. Litanies. Skull inventory. The Emperor is watching. So is your brother.
+    </p>
+    <button class="big-btn" onclick="startQuiz()">Begin the Trial ⚔️</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="panel hidden" id="quiz-section">
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn hidden" id="next-btn" onclick="nextQuestion()">Next Interrogation ➤</button>
+  </div>
+
+  <!-- GIFT -->
+  <div class="panel hidden" id="gift-section">
+    <h1 style="font-size:1.6rem;">TRIAL COMPLETE</h1>
+    <p class="qtext" style="margin-top:1rem;">
+      All ten questions answered. Purity confirmed.<br>
+      The Ordo Gimtadienis hereby declares:<br>
+      <strong style="color:var(--gold-bright); font-size:1.3rem;">GAME GOOD. BROTHER GOOD.</strong>
+    </p>
+    <div class="vault">🎁</div>
+    <div id="key-rite">
+      <p class="qtext">
+        One final rite. The vault is sealed with a cipher — and the key is <strong>you</strong>.<br>
+        State your exact age as of this birthday, Martynas.<br>
+        <span style="color:#9c8b5e; font-size:0.85rem; font-style:italic;">
+          The vault does not verify. It only decodes. A false age opens a false door.
+        </span>
+      </p>
+      <input class="skull-count-input" id="age-input" type="number" min="1" max="200" style="width:6rem;">
+      <button class="penance-btn" id="age-btn" onclick="turnKey()">🗝️ Turn the Key</button>
+      <div class="penance-error" id="age-error"></div>
+    </div>
+    <div id="gift-reveal" class="hidden">
+      <p class="qtext">The Emperor protects. The brother provides.<br>Claim your relic:</p>
+      <a class="gift-link" id="gift-link" href="#" target="_blank" rel="noopener">
+        🗝️ OPEN THE GIFT 🗝️
+      </a>
+    </div>
+    <div class="rank" id="final-rank"></div>
+    <div class="lore">Happy birthday from your brother. May your dice never roll ones<br>and your resin never warp. 💀🎂💀</div>
+  </div>
+
+  <div class="small-quote">"Video games # Miniatures # Shitposting #" — some Lithuanian blog, probably</div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "Let's start at home turf. Your Necromunda Escher gang, unveiled on the blog in 2018 — what did you name those ladies?",
+    a: ["The Neon Widows", "The Blacklights", "The Wyld Stallions", "The Acid Queens"],
+    correct: 1,
+    fb: "The Blacklights, ready to rumble since March 2018. The Goliath boys next door were the Pile Drivers."
+  },
+  {
+    q: "Your Easterling Battle Company, 'The Takavaran', marches to a very specific battle cry. For the glory of... what?",
+    a: ["The Temple of the Golden Serpent", "The Undying Flame of Rhûn", "The Temple of Ant-Hill Lion", "The Thousand Spears of Khand"],
+    correct: 2,
+    fb: "\"For the glory of the Temple of Ant-Hill Lion!\" — a war cry so majestic Sauron himself filed a trademark claim."
+  },
+  {
+    q: "You painted Forge World's Horus Lupercal (a Secret Santa gift) and entered him into a painting competition. What's the full, painful truth of that story?",
+    a: ["A Latvian competition — you won first place", "A Latvian competition that invited Lithuanians — you did NOT win", "A Lithuanian national championship — you took bronze", "An online GW contest — disqualified for a converted base"],
+    correct: 1,
+    fb: "A Latvian geek painting competition graciously invited Lithuanians... and then didn't let one win. The Warmaster remembers this slight."
+  },
+  {
+    q: "In that same Horus post you ranked miniature materials from worst to best. Which material sits at the very BOTTOM of your ranking?",
+    a: ["Metal", "Plastic", "3D printer resin", "Forge World resin"],
+    correct: 3,
+    fb: "Resin: the material so cursed even isopropyl alcohol joined the fight against your Horus. Metal supremacy stands."
+  },
+  {
+    q: "Your very first Kill Team — the Inquisitorial warband — was born under unusual circumstances. Where were you living when you built it?",
+    a: ["Studying in Japan, riding trains from Kyoto to Nara for games", "On exchange in Germany, playing in a Stuttgart FLGS", "In Vilnius, between university lectures", "Working in London, playing at Warhammer World on weekends"],
+    correct: 0,
+    fb: "Hours-long Kyoto→Nara train rides to push converted Bauhaus bodies around with expats. The plasma gun exploded in game one, as is tradition."
+  },
+  {
+    q: "Warhammer 40,000: Tacticus — before Snowprint wrung all the joy out with monetization, that game was a reskin of which earlier Snowprint title?",
+    a: ["Legend of Solgard", "Rivengard", "Siege of Sunfall", "Grimguard Tactics"],
+    correct: 1,
+    fb: "Rivengard, with the serial numbers filed off and the Emperor's tithe replaced by microtransactions. Your prescription: play Space Wolf instead."
+  },
+  {
+    q: "Chaos Gate – Daemonhunters: crash-prone, repetitive, but Space Marines don't miss. What score did you stamp on it?",
+    a: ["6/10", "7/10", "8/10", "You refused to give it a number"],
+    correct: 1,
+    fb: "7/10 — one point deducted per save corruption, presumably. Nurgle's greatest plague was the crash-to-desktop."
+  },
+  {
+    q: "Flashpoint Campaigns: Cold War runs on asynchronous turns. Roughly how often does each side act?",
+    a: ["NATO every ~14 minutes, Warsaw Pact every ~23", "NATO every ~23 minutes, Warsaw Pact every ~14", "Both every ~15 minutes, modified by morale", "NATO every ~10 minutes, Warsaw Pact every ~30"],
+    correct: 0,
+    fb: "NATO ~14, Pact ~23. Superior C3 vs 'you don't stop, just fucking go.' World War III is all vibes."
+  },
+  {
+    q: "Field of Glory: Kingdoms. You picked Scotland and conquered half the map. Around which turn did your spirit finally give out?",
+    a: ["Turn 150", "Turn 240", "Turn 360", "Turn 500"],
+    correct: 2,
+    fb: "Turn 360. Scotland held the British Isles, Malta, the Balearics, north Italy and a chunk of Africa — and still the spirit broke first."
+  },
+  {
+    q: "Final question, heretic. In 'Games Workshop should learn from Corvus Belli' you cited THE damning price comparison. Which one?",
+    a: ["A €40 Primaris hero vs €35 for 5 Intercessors", "A €30 Primaris hero vs €45 for 10 Intercessors", "A €25 character vs €50 for a full Kill Team", "€60 for a codex vs €12 Infinity army lists (free)"],
+    correct: 1,
+    fb: "€30 for ONE hero while 10 Intercessors cost €45. 'Stop clutching the rules to your chest and holding players hostage.' Preach."
+  }
+];
+
+const PRAISE = [
+  "THE EMPEROR APPROVES", "PURITY CONFIRMED", "KNOWLEDGE IS POWER",
+  "ANSWER SANCTIONED", "BLESSED BY THE OMNISSIAH", "FOR THE EMPEROR!",
+  "MY DUDES APPROVE", "GAME GOOD.", "FORTIFIED NICHE!", "PERFECT RECALL, BROTHER"
+];
+
+const HERESY_LINES = [
+  "The Commissar readies his bolt pistol. Try again.",
+  "That answer smells of Chaos corruption. Again!",
+  "Even a monopose Primaris knows better. Retry.",
+  "Exterminatus withheld — this once. Try again.",
+  "The servo-skulls weep. Answer again.",
+  "GW legal team couldn't have answered worse. Again!"
+];
+
+let current = 0;
+let heresies = 0;
+let locked = false;
+
+const $ = id => document.getElementById(id);
+
+function buildSeals() {
+  const seals = $("seals");
+  seals.innerHTML = "";
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    const s = document.createElement("div");
+    s.className = "seal";
+    s.textContent = "✠";
+    s.id = "seal-" + i;
+    seals.appendChild(s);
+  }
+}
+
+function startQuiz() {
+  $("intro-section").classList.add("hidden");
+  $("quiz-section").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion() {
+  locked = false;
+  const q = QUESTIONS[current];
+  $("qnum").textContent = "Interrogation " + (current + 1) + " of " + QUESTIONS.length;
+  $("qtext").textContent = q.q;
+  $("feedback").textContent = "";
+  $("next-btn").classList.add("hidden");
+  const box = $("answers");
+  box.innerHTML = "";
+  q.a.forEach((text, i) => {
+    const btn = document.createElement("button");
+    btn.className = "answer";
+    btn.textContent = String.fromCharCode(65 + i) + ".  " + text;
+    btn.onclick = () => answer(i, btn);
+    box.appendChild(btn);
+  });
+}
+
+function answer(i, btn) {
+  if (locked) return;
+  const q = QUESTIONS[current];
+  if (i === q.correct) {
+    locked = true;
+    btn.classList.add("correct");
+    document.querySelectorAll(".answer").forEach(b => b.disabled = true);
+    $("feedback").textContent = "✅ " + q.fb;
+    $("seal-" + current).classList.add("done");
+    emperorFlash(PRAISE[current % PRAISE.length]);
+    fireBolts(3);
+    $("next-btn").classList.remove("hidden");
+    $("next-btn").textContent = current === QUESTIONS.length - 1 ? "Claim Judgement ⚖️" : "Next Interrogation ➤";
+  } else {
+    heresies++;
+    btn.classList.add("wrong");
+    btn.disabled = true;
+    heresyStamp();
+    $("feedback").textContent = "❌ " + HERESY_LINES[Math.floor(Math.random() * HERESY_LINES.length)];
+    setTimeout(startPenance, 1100);
+  }
+}
+
+/* ---------- penance minigames ---------- */
+const FORM_TITLES = [
+  "FORM 88-C: Declaration of Incorrect Opinion",
+  "FORM 12-B: Request to Requisition Form 12-A",
+  "FORM 404-X: Acknowledgement of Acknowledgement",
+  "FORM 7-K: Heresy Incident Report (Triplicate, Copy 1 of 3)",
+  "FORM 7-K: Heresy Incident Report (Triplicate, Copy 2 of 3)",
+  "FORM 7-K: Heresy Incident Report (Triplicate, Copy 3 of 3)"
+];
+
+const LITANIES = [
+  "I have failed the Emperor and my brother",
+  "I shall reread my own blog before speaking again",
+  "Resin is the worst material and so was my answer",
+  "Even a monopose Primaris knows more than I do"
+];
+
+function startPenance() {
+  $("penance-error").textContent = "";
+  const games = [penanceStamping, penanceLitany, penanceSkulls];
+  games[Math.floor(Math.random() * games.length)]();
+  $("penance-overlay").classList.remove("hidden");
+}
+
+function endPenance() {
+  $("penance-overlay").classList.add("hidden");
+  $("feedback").textContent = "⛓️ Penance complete. The Inquisition permits another attempt.";
+}
+
+/* Game 1: stamp the forms, one soul-crushing click at a time */
+function penanceStamping() {
+  let stamped = 0;
+  const total = FORM_TITLES.length;
+  const body = $("penance-body");
+  body.innerHTML =
+    '<div class="penance-task">Your heresy generated paperwork. Stamp all ' + total + ' forms. Individually. As the Administratum intended.</div>' +
+    '<div class="stamp-form" id="stamp-form"></div>' +
+    '<button class="penance-btn" id="stamp-btn">🖋️ STAMP</button>' +
+    '<div class="penance-progress" id="stamp-progress"></div>';
+  function renderForm() {
+    $("stamp-form").innerHTML =
+      FORM_TITLES[stamped] +
+      "<br>Subject: Klimas, Martynas (JcDent)<br>Offense: Wrong answer about own blog<br>Processing time: 6–8 Terran centuries";
+    $("stamp-progress").textContent = "Forms stamped: " + stamped + " / " + total;
+  }
+  $("penance-body").querySelector("#stamp-btn").onclick = () => {
+    const mark = document.createElement("div");
+    mark.className = "stamp-mark";
+    mark.textContent = "PROCESSED";
+    $("stamp-form").appendChild(mark);
+    stamped++;
+    if (stamped >= total) {
+      $("stamp-progress").textContent = "All forms stamped. Filed under: NOBODY WILL EVER READ THIS.";
+      setTimeout(endPenance, 900);
+    } else {
+      setTimeout(renderForm, 350);
+    }
+  };
+  renderForm();
+}
+
+/* Game 2: type the litany, letter-perfect */
+function penanceLitany() {
+  const litany = LITANIES[Math.floor(Math.random() * LITANIES.length)];
+  const body = $("penance-body");
+  body.innerHTML =
+    '<div class="penance-task">Recite the Litany of Contrition. Type it EXACTLY. The machine spirit accepts no typos.</div>' +
+    '<div class="litany-target">“' + litany + '”</div>' +
+    '<input class="litany-input" id="litany-input" autocomplete="off" spellcheck="false" placeholder="Begin recitation...">' +
+    '<button class="penance-btn" id="litany-btn">Submit Recitation</button>';
+  const input = body.querySelector("#litany-input");
+  input.focus();
+  function check() {
+    if (input.value.trim() === litany) {
+      $("penance-error").textContent = "";
+      endPenance();
+    } else {
+      $("penance-error").textContent = "The machine spirit rejects your recitation. Every letter matters, scribe.";
+      input.select();
+    }
+  }
+  body.querySelector("#litany-btn").onclick = check;
+  input.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
+}
+
+/* Game 3: count the skulls (skulls only, bones don't count) */
+function penanceSkulls() {
+  const total = 36;
+  const skulls = 9 + Math.floor(Math.random() * 8);
+  const cells = Array(skulls).fill("💀").concat(Array(total - skulls).fill(null))
+    .map(v => v || ["🦴", "☠️", "🪨"][Math.floor(Math.random() * 3)]);
+  for (let i = cells.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cells[i], cells[j]] = [cells[j], cells[i]];
+  }
+  const body = $("penance-body");
+  body.innerHTML =
+    '<div class="penance-task">Servitor duty: inventory the reliquary. Count the 💀 skulls. Only 💀. Bones (🦴), rocks (🪨) and lesser skulls (☠️) are a different department.</div>' +
+    '<div class="skull-grid">' + cells.map(c => "<span>" + c + "</span>").join("") + '</div>' +
+    '<input class="skull-count-input" id="skull-input" type="number" min="0" max="36">' +
+    '<button class="penance-btn" id="skull-btn">Report Count</button>';
+  const input = body.querySelector("#skull-input");
+  input.focus();
+  function check() {
+    if (parseInt(input.value, 10) === skulls) {
+      $("penance-error").textContent = "";
+      endPenance();
+    } else {
+      $("penance-error").textContent = "Recount ordered. The reliquary ledger must balance. (Yes, this is your job now.)";
+      input.select();
+    }
+  }
+  body.querySelector("#skull-btn").onclick = check;
+  input.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= QUESTIONS.length) {
+    finish();
+  } else {
+    showQuestion();
+  }
+}
+
+function finish() {
+  $("quiz-section").classList.add("hidden");
+  $("gift-section").classList.remove("hidden");
+  const rank = heresies === 0
+    ? "Rank earned: LIVING SAINT — zero heresies. Flawless. Suspiciously flawless. Did you write these blog posts or something?"
+    : heresies <= 3
+      ? "Rank earned: BATTLE BROTHER — " + heresies + " minor heres" + (heresies === 1 ? "y" : "ies") + " expunged from the record. The Inquisition looks away, this time."
+      : "Rank earned: PARDONED HERETIC — " + heresies + " heresies logged. Forgiven only because it is your birthday. The Commissar is watching.";
+  $("final-rank").textContent = rank;
+  skullConfetti();
+}
+
+/* ---------- the vault cipher ---------- */
+/* Payload is char-shifted by the true key, then base64'd. No key, no URL. */
+const VAULT = "jZmZlZhfVFSGjpeHk4eKmlORhpqTiI2MjouZiIaXiZhTiJSSVJSXiYqXVFeGXVhWiFhcUohVh4lSWVpcWlJeXYdcUopXiIaJW4laioleWg==";
+
+function decodeVault(key) {
+  return Array.from(atob(VAULT), c => String.fromCharCode(c.charCodeAt(0) - key)).join("");
+}
+
+function turnKey() {
+  const age = parseInt($("age-input").value, 10);
+  if (isNaN(age) || age < 1 || age > 200) {
+    $("age-error").textContent = "The cogitator requires a number, not vibes.";
+    return;
+  }
+  const url = decodeVault(age);
+  $("gift-link").href = url;
+  $("key-rite").classList.add("hidden");
+  $("gift-reveal").classList.remove("hidden");
+  $("age-error").textContent = "";
+  emperorFlash("THE VAULT TURNS");
+  skullConfetti();
+}
+
+/* ---------- effects ---------- */
+function heresyStamp() {
+  const s = $("heresy-stamp");
+  s.classList.remove("show");
+  void s.offsetWidth;
+  s.classList.add("show");
+  document.body.classList.remove("shake");
+  void document.body.offsetWidth;
+  document.body.classList.add("shake");
+}
+
+function emperorFlash(text) {
+  const e = $("emperor-flash");
+  e.textContent = "✠ " + text + " ✠";
+  e.classList.remove("show");
+  void e.offsetWidth;
+  e.classList.add("show");
+}
+
+function fireBolts(n) {
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const b = document.createElement("div");
+      b.className = "bolt";
+      b.style.top = (20 + Math.random() * 60) + "vh";
+      document.body.appendChild(b);
+      setTimeout(() => b.remove(), 600);
+    }, i * 120);
+  }
+}
+
+function skullConfetti() {
+  const bits = ["💀", "🎂", "⚔️", "🎁", "✨", "🍺", "💀", "🎉"];
+  let count = 0;
+  const timer = setInterval(() => {
+    const el = document.createElement("div");
+    el.className = "fall";
+    el.textContent = bits[Math.floor(Math.random() * bits.length)];
+    el.style.left = Math.random() * 100 + "vw";
+    el.style.animationDuration = (2.5 + Math.random() * 3) + "s";
+    el.style.fontSize = (1 + Math.random() * 1.5) + "rem";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 6000);
+    if (++count > 80) clearInterval(timer);
+  }, 90);
+}
+
+buildSeals();
+</script>
+</body>
+</html>
